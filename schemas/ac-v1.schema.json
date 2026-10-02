@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "ify/device-contracts/ac/1.0.0",
+  "title": "SmartAGD AirConditioner v1",
+  "description": "Capability contract for Tuya-based air conditioners (standalone/mobile). Based on the Tuya standard instruction set for AC (kt). The dp_map field binds contract fields to the concrete device's raw DP ids, read from the live device at provisioning time.",
+  "type": "object",
+  "required": ["device_id", "model", "capabilities", "dp_map"],
+  "properties": {
+    "device_id": { "type": "string", "description": "Tuya device id" },
+    "model": { "type": "string" },
+    "nickname": { "type": "string" },
+    "capabilities": {
+      "type": "object",
+      "required": ["power", "mode", "temp_set", "fan_level", "swing", "timer"],
+      "properties": {
+        "power": { "type": "boolean" },
+        "temp_set": {
+          "type": "object",
+          "properties": {
+            "min_c": { "type": "number", "default": 16 },
+            "max_c": { "type": "number", "default": 32 },
+            "step_c": { "type": "number", "default": 1 }
+          }
+        },
+        "temp_current": { "type": "boolean", "description": "device reports current room temperature" },
+        "mode": {
+          "type": "array",
+          "items": { "enum": ["auto", "cool", "heat", "dry", "fan_only"] },
+          "description": "modes the device supports; IFY UI shows exactly these"
+        },
+        "fan_level": {
+          "type": "array",
+          "items": { "enum": ["auto", "low", "mid", "high"] }
+        },
+        "swing": { "type": "boolean", "description": "on/off swing flap (or horizontal+vertical — see swing_axes)" },
+        "swing_axes": { "type": "array", "items": { "enum": ["horizontal", "vertical"] } },
+        "timer": { "type": "boolean", "description": "device-side countdown timer" }
+      }
+    },
+    "dp_map": {
+      "type": "object",
+      "description": "contract field -> raw Tuya DP id/code for this concrete device; filled from Tuya IoT status/schema API",
+      "examples": [
+        {
+          "power": "1", "temp_set": "2", "temp_current": "3", "mode": "4",
+          "fan_level": "5", "swing": "30", "timer": "22"
+        }
+      ]
+    },
+    "protocol": { "enum": ["tuya_cloud", "tuya_local"], "default": "tuya_cloud" }
+  }
+}
